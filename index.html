@@ -1,21 +1,26 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="ko">
+
 
 <head>
-	<meta charset=UTF-8>
-	<title>mythreejsproject</title>
-
+    <meta charset="UTF-8">
+    <title>Hello Cube</title>
 	<style>
 
-		body { 
+		html, body { 
 			margin: 0;
+			height: 100%; 
 		}
 
-		canvas { 
-			position: absolute;
-			z-index: -1;
-			width: 100 %; height: 100 %; 
+		#c { 
+			//position: absolute;
+			position: fixed;
+			left: 0;
+			top: 0;
+			//z-index: -1; //이거 활성화하면 OrbitControls가 안먹는듯? 일단 클릭으로 하는건 안됨 좌표로 되는진 모르겠음
+			width: 100%; 
+			height: 100%; 
+			display: block;
 		}
 
 		/* web font */
@@ -25,6 +30,7 @@
 
 		/* typo graphics */
 			.typo {
+				position: relative; //이거 키면 canvas의 z-index: -1 활성화 안하고도 보임
 				margin-top: 2rem;
 				margin-left: 2rem;
 				width: 15rem;
@@ -41,7 +47,6 @@
 					}
 
 					#sentences {
-
 						font-size: 1.3rem;
 						font-weight: 800;
 						margin-bottom: 1rem;
@@ -65,7 +70,6 @@
 				.makers { margin-top: 10rem; }
 
 				#art, #tech  {
-
 					letter-spacing: -0.05rem;
 					font-family: 'Pinyon Script', cursive;
 					font-size: 0.8rem;
@@ -92,7 +96,8 @@
 				-webkit-transform: rotate(90deg); 
     			transform: rotate(90deg);
 
-				position: relative; z-index: -2;
+				position: relative; 
+				z-index: -2;
 				right: 6rem;
 				bottom: 17rem;
 
@@ -101,125 +106,15 @@
 				font-weight: 400;
 				letter-spacing: -1rem;
 				color: #5b8d80;
-
+				pointer-events: none;
 			}
 
 	</style>
-
 </head>
 
-
-
 <body>
-
-	<canvas>
-
-		<div class="3dgraphic">
-
-			<script src="https://greggman.github.io/webgl-helpers/webgl-log-shaders.js"></script>
-			<script src="https://greggman.github.io/webgl-helpers/webgl-show-draw-calls.js"></script>
-
-			<script type = "module">
-
-				// webgl script
-				function glEnumToString(gl, value) {
-				  const keys = [];
-				  for (const key in gl) {
-				    if (gl[key] === value) {
-				      keys.push(key);
-				    }
-				  }
-				  return keys.length ? keys.join(' | ') : `0x${value.toString(16)}`;
-				}
-				document.createElement("canvas").getContext("webgl").getSupportedExtensions().join('\n');
-				document.createElement("canvas").getContext("webgl2").getSupportedExtensions().join('\n');
-
-
-				
-				// threejs script (threejs, GLFTLoader)
-				// decorder 랑, orbit controlor 추가로 임포트 해야하는데 몰라서 안함
-
-				import * as THREE from 'https://unpkg.com/three@0.125.2/build/three.module.js';
-				import { GLTFLoader } from 'https://unpkg.com/three@0.125.2/examples/jsm/loaders/GLTFLoader.js';
-				//import { DRACOLoader } from 'https://unpkg.com/three@0.125.2/examples/jsm/loaders/DRACOLoader.js';
-
-
-				//init (scene, camera, renderer,light)
-				const scene = new THREE.Scene( );
-					scene.background = new THREE.Color( 0xa4a2a3 );
-
-				const camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
-					camera.position.z = 20;
-					camera.updateProjectionMatrix();
-
-				const renderer = new THREE.WebGLRenderer( { antialisa:true });
-					renderer.setSize( window.innerWidth, window.innerHeight );
-					document.body.appendChild( renderer.domElement );
-
-					// 조명 설정은 맘대로 바꿔도 상관이 없다.
-				scene.add( new THREE.AmbientLight( 0xffffff ) );
-				const dirLight1 = new THREE.DirectionalLight( 0xffffff, 1 );
-					dirLight1.position.set( 1, 2, 2 );
-					scene.add( dirLight1 );
-				const dirLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
-					dirLight2.position.set( -1, -0.75, -1 );
-					scene.add( dirLight2 );
-
-
-
-
-				// logic (3D moddel)
-				// gltf 랑 dracoloader 같이 사용하면 렌더가 빨라진다 하는데 어케하는 지 몰겠어서 하다 말음..
-				// mouse interation 부분은 못건들였음 .. orbitcontrolor 인가 3js 라이브러리 사용해야 한다고 함 ..
-
-				const update = function( ) {
-
-
-					const loader = new GLTFLoader( );
-					//const dracroLoader = new DRACOLoader ( );
-					//dracroLoader.setDecorderPath( 'https://www.unpkg.com/three@0.125.2/examples/js/libs/draco/');
-					//loader.setDRACOLoader ( dracroLoader );
-
-					loader.load ( './buddas.glb', function ( gltf ) {
-
-						scene.add( gltf.scene );
-
-					}, function( xhr ) {
-
-						console.log( ( xhr.loaded / xhr.total * 100 ) +'% loaded');
-
-					}, undefined, function ( error ){
-
-						console.log( 'An error happened' );
-
-					});
-					
-				};
-
-
-
-
-				// draw Scene(rendering)
-				// 근데 나는 3D 파일 업로드하는 것까지만 성공해서 orbit control 부분 넣으면 이 부분이 어케 될지 모르겠삼. loop 함수를 또 만드는 사람도 있던데 일자무식걸이라 패스함..
-
-				const render = function( ) {
-
-					update( );
-					requestAnimationFrame( render );
-					renderer.render ( scene, camera );
-
-				};
-
-				render( );
-
-
-			</script>
-		
-
-		</div>
-
-	</canvas>
-
+	<canvas id="c"></canvas>
+	<!-- text 요소 -->	
 	<div class = "typo">
 		<div class = "header">
 
@@ -234,15 +129,11 @@
 
 		</div>
 
-
-
 		<div id = "description">
 			<pre>여기는 그냥 석가탄신일을</pre>
 			<pre>축하하기 위해 만들어졌습니다</pre>
 			<pre>여기 오신 모든 분들 열반하세요</pre>
 		</div>
-
-
 		
 		<div class = "makers">
 			<p id = "art" > art .  </p>
@@ -252,15 +143,154 @@
 		</div>
 	</div>
 
-
-
 	<div id = "date">
 		<p>2021  5  19</p>
 	</div>
+	
+	<script type="module">
+		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
+		import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
+		//import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
+		import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/OBJLoader.js';
 
+		function main() {
+			const canvas = document.querySelector('#c');
+			const renderer = new THREE.WebGLRenderer({canvas});
+			//renderer.autoClearColor = false; //이게 뭐지
+			
+			//Camera 생성
+			const fov = 45;
+			const aspect = 2;  // the canvas default
+			const near = 0.1;
+			const far = 100;
+			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+			camera.position.set(0, 10, 20);
+			
+			//Camera 회전 속성
+			const controls = new OrbitControls(camera, canvas);
+			controls.target.set(0, 5, 0); //시점 이동
+			controls.update(); //이동한 시점 바라보도록 
+			
+			//Scene 생성
+			const scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0xa4a2a3 );
+			
+			//바닥
+			{
+				const planeSize = 40;
 
+				const loader = new THREE.TextureLoader();
+				const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
+				texture.wrapS = THREE.RepeatWrapping;
+				texture.wrapT = THREE.RepeatWrapping;
+				texture.magFilter = THREE.NearestFilter;
+				const repeats = planeSize / 2;
+				texture.repeat.set(repeats, repeats);
 
-
+				const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
+				const planeMat = new THREE.MeshPhongMaterial({
+					map: texture,
+					side: THREE.DoubleSide,
+				});
+				const mesh = new THREE.Mesh(planeGeo, planeMat);
+				mesh.rotation.x = Math.PI * -.5;
+				scene.add(mesh);
+			}
+			
+			//광원
+			{
+				const skyColor = 0xB1E1FF;  // light blue
+				const groundColor = 0xB97A20;  // brownish orange
+				const intensity = 1;
+				const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+				scene.add(light);
+			}
+			
+			{
+				const color = 0xFFFFFF;
+				const intensity = 1;
+				const light = new THREE.DirectionalLight(color, intensity);
+				light.position.set(5, 10, 4);
+				scene.add(light);
+				scene.add(light.target); //이게 뭐지
+			}
+			/*
+			//Geometry 생성
+			const cubeSize = 5;
+			const geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+			
+			//Material 생성, 색 설정
+			//const material = new THREE.MeshBasicMaterial({color: 0x44aa88}); //기본 Material, 광원에 반응하지 않음
+			const material = new THREE.MeshPhongMaterial({color: 0x44aa88}); //광원에 반응하는 Phong Material
+			
+			//Geometry와 Material을 이용해 Mesh 생성
+			const cube = new THREE.Mesh(geometry, material);
+			cube.position.set(0, cubeSize / 2, 0);
+			*/
+			
+			//geometry, material, mesh 생성 대신 obj나 gltf 불러오기 가능
+			{
+			const objLoader = new OBJLoader();
+			objLoader.load('./cube.obj', (root) => {
+				scene.add(root);
+				
+				const box = new THREE.Box3().setFromObject(root);
+				
+				const boxSize = box.getSize(new THREE.Vector3()).length();
+				const boxCenter = box.getCenter(new THREE.Vector3());
+				
+				console.log(boxSize);
+				console.log(boxCenter);
+				});
+				
+			
+			}
+			
+			
+			//생성한 Mesh를 Scene에 포함
+			//scene.add(cube);
+			
+			
+			
+			//canvas를 리사이징 해야하는지 검사 -> 리사이징 했으면 true 반환
+			function resizeRendererToDisplaySize(renderer) {
+				const canvas = renderer.domElement;
+				const width = canvas.clientWidth;
+				const height = canvas.clientHeight;
+				const needResize = canvas.width !== width || canvas.height !== height;
+				if (needResize) {
+					renderer.setSize(width, height, false);
+				}
+				return needResize;
+			}
+			
+			function render() {
+				
+				
+				//카메라의 비율을 canvas 비율로 지정
+				if (resizeRendererToDisplaySize(renderer)) {
+					const canvas = renderer.domElement;
+					camera.aspect = canvas.clientWidth / canvas.clientHeight;
+					camera.updateProjectionMatrix();
+				}
+				
+				
+				//인자로 받은 씬을 렌더링
+				renderer.render(scene, camera);
+				
+				requestAnimationFrame(render);
+			}
+			requestAnimationFrame(render);
+			
+		}
+		
+		main();
+	</script>
+	
+	
+	
 </body>
+
+ 
 
 </html>
