@@ -199,8 +199,7 @@
 			}
 			*/
 			
-			//광원
-			/*
+			//광원			
 			{
 				const skyColor = 0xB1E1FF;  // light blue
 				const groundColor = 0xB97A20;  // brownish orange
@@ -217,7 +216,7 @@
 				scene.add(light);
 				scene.add(light.target); //이게 뭐지
 			}
-			*/
+			/*
 			scene.add( new THREE.AmbientLight( 0xffffff ) );
 				const dirLight1 = new THREE.DirectionalLight( 0xffffff, 1 );
 					dirLight1.position.set( 1, 2, 2 );
@@ -225,7 +224,7 @@
 				const dirLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
 					dirLight2.position.set( -1, -0.75, -1 );
 					scene.add( dirLight2 );
-			
+			*/
 			//모델 크기에 맞춰 절두체 크기 재조정
 			function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
 				const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
@@ -267,12 +266,12 @@
 				const boxCenter = box.getCenter(new THREE.Vector3());
 
 				// set the camera to frame the box
-				//frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
+				frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
 	
 				// update the Trackball controls to handle the new size
-				//controls.maxDistance = boxSize * 10;
-				//controls.target.copy(boxCenter);
-				//controls.update();
+				controls.maxDistance = boxSize * 10;
+				controls.target.copy(boxCenter);
+				controls.update();
 				});
 			}
 			
