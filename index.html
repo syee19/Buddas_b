@@ -4,24 +4,25 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Hello Cube</title>
+    <title>0408</title>
 	<style>
 
 		html, body { 
 			margin: 0;
 			height: 100%; 
+			background-color: #a4a2a3;
 		}
 
 		#c { 
+			width: 100%; 
+			height: 100%; 
+			display: block;
 			position: absolute;
 			//position: fixed;
 			left: 0;
 			top: 0;
-			//z-index: -1; //이거 활성화하면 OrbitControls가 안먹는듯? 일단 클릭으로 하는건 안됨 좌표로 되는진 모르겠음
-			width: 100%; 
-			height: 100%; 
-			display: block;
-		}
+			//z-index: -3; //이거 활성화하면 OrbitControls가 안먹는듯? 일단 클릭으로 하는건 안됨 좌표로 되는진 모르겠음
+			}
 
 		/* web font */
 		@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
@@ -30,6 +31,7 @@
 
 		/* typo graphics */
 			.typo {
+				z-index: 1;
 				position: relative; //이거 키면 canvas의 z-index: -1 활성화 안하고도 보임
 				margin-top: 2rem;
 				margin-left: 2rem;
@@ -97,7 +99,7 @@
     			transform: rotate(90deg);
 
 				position: relative; 
-				z-index: -2;
+				//z-index: -2;
 				right: 6rem;
 				bottom: 17rem;
 
@@ -151,12 +153,10 @@
 		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 		import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 		import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
-		//import {OBJLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/OBJLoader.js';
-
+		
 		function main() {
 			const canvas = document.querySelector('#c');
 			const renderer = new THREE.WebGLRenderer({canvas});
-			//renderer.autoClearColor = false; //이게 뭐지
 			
 			//Camera 생성
 			const fov = 45;
@@ -174,32 +174,8 @@
 			//Scene 생성
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xa4a2a3 );
-			
-			//바닥
-			/*
-			{
-				const planeSize = 40;
-
-				const loader = new THREE.TextureLoader();
-				const texture = loader.load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
-				texture.wrapS = THREE.RepeatWrapping;
-				texture.wrapT = THREE.RepeatWrapping;
-				texture.magFilter = THREE.NearestFilter;
-				const repeats = planeSize / 2;
-				texture.repeat.set(repeats, repeats);
-
-				const planeGeo = new THREE.PlaneGeometry(planeSize, planeSize);
-				const planeMat = new THREE.MeshPhongMaterial({
-					map: texture,
-					side: THREE.DoubleSide,
-				});
-				const mesh = new THREE.Mesh(planeGeo, planeMat);
-				mesh.rotation.x = Math.PI * -.5;
-				scene.add(mesh);
-			}
-			*/
-			
-			//광원			
+					
+			//광원
 			{
 				const skyColor = 0xB1E1FF;  // light blue
 				const groundColor = 0xB97A20;  // brownish orange
@@ -215,16 +191,8 @@
 				light.position.set(5, 10, 4);
 				scene.add(light);
 				scene.add(light.target); //이게 뭐지
-			}
-			/*
-			scene.add( new THREE.AmbientLight( 0xffffff ) );
-				const dirLight1 = new THREE.DirectionalLight( 0xffffff, 1 );
-					dirLight1.position.set( 1, 2, 2 );
-					scene.add( dirLight1 );
-				const dirLight2 = new THREE.DirectionalLight( 0xffffff, 1 );
-					dirLight2.position.set( -1, -0.75, -1 );
-					scene.add( dirLight2 );
-			*/
+			}			
+			
 			//모델 크기에 맞춰 절두체 크기 재조정
 			function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
 				const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
