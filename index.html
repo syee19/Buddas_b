@@ -4,7 +4,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>0408</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>0409_1</title>
 	<style>
 
 		html, body { 
@@ -159,6 +160,12 @@
 			const canvas = document.querySelector('#c');
 			const renderer = new THREE.WebGLRenderer({canvas});
 			
+			//onDocumentMouseMove
+			let mouseX = 0;
+			let mouseY = 0;
+			
+			document.addEventListener( 'mousemove', onDocumentMouseMove );
+			
 			//Camera 생성
 			const fov = 45;
 			const aspect = 2;  // the canvas default
@@ -204,7 +211,7 @@
 				gui.add(light, 'intensity', 0, 2, 0.01);
 			}
 			
-			
+			/*
 			{
 				const color = 0xFFFFFF;
 				const intensity = 1;
@@ -213,7 +220,7 @@
 				scene.add(light);
 				scene.add(light.target); //이게 뭐지
 			}
-			
+			*/
 			
 			//모델 크기에 맞춰 절두체 크기 재조정
 			function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
@@ -265,6 +272,14 @@
 				});
 			}
 			
+			//마우스 위치에 따라 카메라 회전
+			function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) / 100;
+				mouseY = ( event.clientY - windowHalfY ) / 100;
+
+			}
+			
 			//canvas를 리사이징 해야하는지 검사 -> 리사이징 했으면 true 반환
 			function resizeRendererToDisplaySize(renderer) {
 				const canvas = renderer.domElement;
@@ -278,7 +293,13 @@
 			}
 			
 			function render() {
-				
+				//onDocumentMouseMove
+				const timer = 0.0001 * Date.now();
+
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+
+				camera.lookAt( scene.position );
 				
 				//카메라의 비율을 canvas 비율로 지정
 				if (resizeRendererToDisplaySize(renderer)) {
