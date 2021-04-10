@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>0409_3</title>
+    <title>0410_1</title>
 	<style>
 
 		html, body { 
@@ -160,6 +160,11 @@
 			const canvas = document.querySelector('#c');
 			const renderer = new THREE.WebGLRenderer({canvas});
 			
+			const param = {
+				mouseOver: true,
+				orbitControls: true;
+			}
+			
 			//onDocumentMouseMove
 			let mouseX = 0;
 			let mouseY = 0;
@@ -181,6 +186,16 @@
 			const controls = new OrbitControls(camera, canvas);
 			controls.target.set(0, 5, 0); //시점 이동
 			controls.update(); //이동한 시점 바라보도록 
+			if(!param.orbitControls){
+				controls.enablePan = false;
+				controls.enableRotate = false;
+				controls.enableZoom = false;
+			}
+			else{
+				controls.enablePan = true;
+				controls.enableRotate = true;
+				controls.enableZoom = true;			
+			}
 			
 			//Scene 생성
 			const scene = new THREE.Scene();
@@ -199,19 +214,37 @@
 				  this.object[this.prop].set(hexString);
 				}
 			}
-			
+						
 			//광원
 			{
-				const skyColor = 0xB1E1FF;  // light blue
-				const groundColor = 0xB97A20;  // brownish orange
-				const intensity = 1;
-				const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-				scene.add(light);
+						
+				const color1 = 0xffffff
+				const intensity1 = 1;
+				const dirLight1 = new THREE.DirectionalLight( color1, intensity1 );
+				dirLight1.position.set( 1, 2, 2 );
+				dirLight1.target.position.set(-5, 0, 0);
+				scene.add( dirLight1 );
+				scene.add( dirLight1.target );
+				const color2 = 0xffffff
+				const intensity2 = 1;
+				const dirLight1 = new THREE.DirectionalLight( color2, intensity2 );
+				dirLight2.position.set( -1, -0.75, -1 );
+				dirLight2.target.position.set(-5, 0, 0);
+				scene.add( dirLight2 );
+				scene.add( dirLight2.target );
 				
 				const gui = new GUI();
-				gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
-				gui.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
-				gui.add(light, 'intensity', 0, 2, 0.01);
+				gui.addColor(new ColorGUIHelper(dirLight1, 'color1'), 'value').name('color1');
+				gui.add(dirLight1, 'intensity1', 0, 2, 0.01);
+				gui.add(dirLight1.target.position, 'x', -10, 10, .01);
+				gui.add(dirLight1.target.position, 'z', -10, 10, .01);
+				gui.add(dirLight1.target.position, 'y', 0, 10, .01);
+				gui.addColor(new ColorGUIHelper(dirLight2, 'color2'), 'value').name('color2');
+				gui.add(dirLight2, 'intensity2', 0, 2, 0.01);
+				gui.add(dirLight2.position, 'x', -10, 10, .01);
+				gui.add(dirLight2.position, 'z', -10, 10, .01);
+				gui.add(dirLight2.position, 'y', 0, 10, .01);
+				
 			}
 			
 			/*
@@ -256,7 +289,7 @@
 			const gltfLoader = new GLTFLoader();
 			gltfLoader.load('./buddas.glb', (gltf) => {
 				const root = gltf.scene;
-				root.position.y += 4;
+				root.position.y += 20;
 				scene.add(root);
 
 				// compute the box that contains all the stuff
@@ -298,13 +331,15 @@
 			
 			function render() {
 				//onDocumentMouseMove
-				const timer = 0.0001 * Date.now();
+				if(param.mouseOver){
+					const timer = 0.0001 * Date.now();
 
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+					camera.position.x += ( mouseX - camera.position.x ) * .05;
+					camera.position.y += ( - mouseY - camera.position.y ) * .05;
 
-				camera.lookAt( scene.position );
-				
+					camera.lookAt( scene.position );
+				}
+								
 				//카메라의 비율을 canvas 비율로 지정
 				if (resizeRendererToDisplaySize(renderer)) {
 					const canvas = renderer.domElement;
