@@ -160,6 +160,11 @@
 			const canvas = document.querySelector('#c');
 			const renderer = new THREE.WebGLRenderer({canvas});
 			
+			const param = {
+				mouseOver: true,
+				orbitControls: true;
+			}
+			
 			//onDocumentMouseMove
 			let mouseX = 0;
 			let mouseY = 0;
@@ -181,6 +186,16 @@
 			const controls = new OrbitControls(camera, canvas);
 			controls.target.set(0, 5, 0); //시점 이동
 			controls.update(); //이동한 시점 바라보도록 
+			if(!param.orbitControls){
+				controls.enablePan = false;
+				controls.enableRotate = false;
+				controls.enableZoom = false;
+			}
+			else{
+				controls.enablePan = true;
+				controls.enableRotate = true;
+				controls.enableZoom = true;			
+			}
 			
 			//Scene 생성
 			const scene = new THREE.Scene();
@@ -256,7 +271,7 @@
 			const gltfLoader = new GLTFLoader();
 			gltfLoader.load('./buddas.glb', (gltf) => {
 				const root = gltf.scene;
-				root.position.y += 20;
+				root.position.y += 2;
 				scene.add(root);
 
 				// compute the box that contains all the stuff
@@ -298,12 +313,14 @@
 			
 			function render() {
 				//onDocumentMouseMove
-				const timer = 0.0001 * Date.now();
+				if(param.mouseOver){
+					const timer = 0.0001 * Date.now();
 
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+					camera.position.x += ( mouseX - camera.position.x ) * .05;
+					camera.position.y += ( - mouseY - camera.position.y ) * .05;
 
-				camera.lookAt( scene.position );
+					camera.lookAt( scene.position );
+				}
 				
 				//카메라의 비율을 canvas 비율로 지정
 				if (resizeRendererToDisplaySize(renderer)) {
