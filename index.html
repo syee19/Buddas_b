@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>0409_2</title>
+    <title>0513_1</title>
 	<style>
 
 		html, body { 
@@ -161,9 +161,9 @@
 			const renderer = new THREE.WebGLRenderer({canvas});
 			
 			const param = {
-				mouseOver: true,
-				orbitControls: true;
-			}
+				mouseOver: false,
+				orbitControls: true
+			};
 			
 			//onDocumentMouseMove
 			let mouseX = 0;
@@ -180,26 +180,19 @@
 			const near = 0.1;
 			const far = 100;
 			const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-			camera.position.set(0, 10, 20);
+			camera.position.set(0, 1.2, 14);
 			
 			//Camera 회전 속성
 			const controls = new OrbitControls(camera, canvas);
-			controls.target.set(0, 5, 0); //시점 이동
+			controls.target.set(0, 0, 0); //시점 이동
 			controls.update(); //이동한 시점 바라보도록 
-			if(!param.orbitControls){
-				controls.enablePan = false;
-				controls.enableRotate = false;
-				controls.enableZoom = false;
-			}
-			else{
-				controls.enablePan = true;
-				controls.enableRotate = true;
-				controls.enableZoom = true;			
-			}
-			
+						
 			//Scene 생성
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xa4a2a3 );
+			
+			//xyz helper
+			//scene.add( new THREE.AxesHelper( 20 ) );
 			
 			//광원 색상 GUI
 			class ColorGUIHelper {
@@ -216,30 +209,57 @@
 			}
 			
 			//광원
-			{
-				const skyColor = 0xB1E1FF;  // light blue
-				const groundColor = 0xB97A20;  // brownish orange
-				const intensity = 1;
+			{	
+				const ambColor = 0x204126;
+				const ambIntensity = 0.44;
+				const ambLight = new THREE.AmbientLight(ambColor, ambIntensity);
+				scene.add(ambLight);
+				
+				const skyColor = 0x9ba9c3;  // light blue
+				const groundColor = 0x1b1a25;  // brownish orange
+				const intensity = 1.33;
 				const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
 				scene.add(light);
 				
-				const gui = new GUI();
-				gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
-				gui.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
-				gui.add(light, 'intensity', 0, 2, 0.01);
+				const dirColor = 0xaa2a5f;
+				const dirIntensity = 1;
+				const dirLight = new THREE.DirectionalLight(dirColor, dirIntensity);
+				dirLight.position.set(0, 10, 0);
+				dirLight.target.position.set(-5, 0, 0);
+				scene.add(dirLight);
+				scene.add(dirLight.target);
+				
+				function makeXYZGUI(gui, vector3, name, onChangeFn) {
+					const folder = gui.addFolder(name);
+					folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
+					folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
+					folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
+					folder.open();
+				}
+				
+				function updateLight() {
+					dirLight.target.updateMatrixWorld();
+				}
+				updateLight();
+				
+				//GUI
+				const gui = new GUI();				
+				const lightFolder = gui.addFolder("light")
+				lightFolder.addColor(new ColorGUIHelper(ambLight, 'color'), 'value') .name('ambColor');
+				lightFolder.add(ambLight, 'intensity', 0, 2, 0.01);
+				lightFolder.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
+				lightFolder.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
+				lightFolder.add(light, 'intensity', 0, 2, 0.01);
+				lightFolder.addColor(new ColorGUIHelper(dirLight, 'color'), 'value').name('dirColor');
+				lightFolder.add(dirLight, 'intensity', 0, 2, 0.01);
+				makeXYZGUI(lightFolder, dirLight.position, 'position', updateLight);
+				makeXYZGUI(lightFolder, dirLight.target.position, 'target', updateLight);
+				
+				const interactionFolder = gui.addFolder("interaction");
+				interactionFolder.add(param, 'mouseOver');
+				interactionFolder.add(param, 'orbitControls');
 			}
-			
-			/*
-			{
-				const color = 0xFFFFFF;
-				const intensity = 1;
-				const light = new THREE.DirectionalLight(color, intensity);
-				light.position.set(5, 10, 4);
-				scene.add(light);
-				scene.add(light.target); //이게 뭐지
-			}
-			*/
-			
+						
 			//모델 크기에 맞춰 절두체 크기 재조정
 			function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
 				const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
@@ -269,11 +289,12 @@
 
 			{
 			const gltfLoader = new GLTFLoader();
-			gltfLoader.load('./buddas.glb', (gltf) => {
+			gltfLoader.load('https://syee19.github.io/Buddas_b/buddas.glb', (gltf) => {
 				const root = gltf.scene;
-				root.position.y += 2;
+				root.position.set(-0.8, 3, -4.4);
 				scene.add(root);
-
+				
+				/*
 				// compute the box that contains all the stuff
 				// from root and below
 				const box = new THREE.Box3().setFromObject(root);
@@ -285,12 +306,69 @@
 				frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
 	
 				// update the Trackball controls to handle the new size
-				controls.maxDistance = boxSize * 10;
-				controls.target.copy(boxCenter);
+				//controls.maxDistance = boxSize * 10;
+				//controls.target.copy(boxCenter);
 				controls.update();
+				//document.write(camera.position.z);
+				//-0.365274516084083, 1.189648554562553, 11.884946799256626
+				*/
 				});
+				
 			}
+				
 			
+			function addShape( x, y, z) {
+					//star shape
+					const shape = new THREE.Shape()
+							.moveTo( 3, 5 )
+							.lineTo( 3, 21 )
+							.lineTo( -3, 21 )
+							.lineTo( -3, 5 )
+							.lineTo( -17, 13 )
+							.lineTo( -20, 8 )
+							.lineTo( -6, 0 )
+							.lineTo( -20, -8 )
+							.lineTo( -17, -13 )
+							.lineTo( -3, -5 )
+							.lineTo( -3, -21 )
+							.lineTo( 3, -21 )
+							.lineTo( 3, -5 )
+							.lineTo( 17, -13 )
+							.lineTo( 20, -8 )
+							.lineTo( 6, 0 )
+							.lineTo( 20, 8 )
+							.lineTo( 17, 13 )
+							.lineTo( 3, 5 ); // close path
+					
+					// flat shape with texture
+					// note: default UVs generated by THREE.ShapeGeometry are simply the x- and y-coordinates of the vertices
+					
+					//scale 너무 커서 조정
+					var s = 0.03;
+					let geometry = new THREE.ShapeGeometry( shape );
+
+					let mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x5b8d80, side: THREE.DoubleSide } ) );
+					mesh.position.set( x, y, z );
+					mesh.scale.set( s, s, s );
+					mesh.lookAt(camera.position);
+					scene.add( mesh );
+					return mesh;
+				}
+				
+				var arr = [];
+				var len = 10;
+				const n = 30
+				const seta = Math.PI*2/n;
+				var shx, shy, shz;
+				for(var i=0; i<n; i++){
+					len = Math.floor(Math.random()*10)+10;
+					shx = len*Math.sin(i*seta);
+					shy = Math.floor(Math.random()*40)-20;
+					shz = len*Math.cos(i*seta);
+					arr.push(addShape( shx, shy, shz));
+				}
+				
+				
 			//마우스 위치에 따라 카메라 회전
 			function onDocumentMouseMove( event ) {
 
@@ -322,6 +400,18 @@
 					camera.lookAt( scene.position );
 				}
 				
+				//orbitControls
+				if(!param.orbitControls){
+					controls.enablePan = false;
+					controls.enableRotate = false;
+					controls.enableZoom = false;
+				}
+				else{
+					controls.enablePan = true;
+					controls.enableRotate = true;
+					controls.enableZoom = true;			
+				}
+				
 				//카메라의 비율을 canvas 비율로 지정
 				if (resizeRendererToDisplaySize(renderer)) {
 					const canvas = renderer.domElement;
@@ -329,6 +419,12 @@
 					camera.updateProjectionMatrix();
 				}
 				
+				for(var i=0; i<arr.length; i++){
+					arr[i].position.y -= 0.03;
+					if(arr[i].position.y <= -20)
+						arr[i].position.y = 20;
+					arr[i].lookAt(camera.position);
+				}
 				
 				//인자로 받은 씬을 렌더링
 				renderer.render(scene, camera);
