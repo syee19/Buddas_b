@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>0513_1</title>
+    <title>Buddas_b</title>
 	<style>
 
 		html, body { 
@@ -29,8 +29,11 @@
 		@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap');
 		@import url('https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap');
 
-
 		/* typo graphics */
+			pre {
+				font-family: 'Noto Sans KR', sans-serif;
+			}
+			
 			.typo {
 				z-index: 1;
 				position: relative; //이거 키면 canvas의 z-index: -1 활성화 안하고도 보임
@@ -40,9 +43,9 @@
 				letter-spacing: -0.05rem;
 				font-family: 'Noto Sans KR', sans-serif;
 			}
-
+			
 				.header { margin-bottom: 6rem; }
-
+				
 					#title {
 						font-size: 2rem;
 						font-weight: 900;
@@ -50,6 +53,7 @@
 					}
 
 					#sentences {
+					
 						font-size: 1.3rem;
 						font-weight: 800;
 						margin-bottom: 1rem;
@@ -72,9 +76,9 @@
 
 				.makers { margin-top: 10rem; }
 
-				#art, #tech  {
-					letter-spacing: -0.05rem;
+				#art, #tech  {		
 					font-family: 'Pinyon Script', cursive;
+					letter-spacing: -0.05rem;
 					font-size: 0.8rem;
 					font-weight: 400;
 					display: inline;
@@ -82,12 +86,12 @@
 				}
 
 
-				#lee , #choi{
+				#lee , #choi{	
 					font-family: 'Noto Sans KR', sans-serif;
 					font-size: 0.6rem;
 					font-weight: 300;
 					display: inline;
-					margin-right: 3.5rem;
+					margin-right: 2.5rem;
 				}
 
 
@@ -154,17 +158,11 @@
 		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/build/three.module.js';
 		import {OrbitControls} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/controls/OrbitControls.js';
 		import {GLTFLoader} from 'https://threejsfundamentals.org/threejs/resources/threejs/r125/examples/jsm/loaders/GLTFLoader.js';
-		import {GUI} from 'https://threejsfundamentals.org/threejs/../3rdparty/dat.gui.module.js';
 		
 		function main() {
 			const canvas = document.querySelector('#c');
 			const renderer = new THREE.WebGLRenderer({canvas});
-			
-			const param = {
-				mouseOver: false,
-				orbitControls: true
-			};
-			
+					
 			//onDocumentMouseMove
 			let mouseX = 0;
 			let mouseY = 0;
@@ -184,141 +182,44 @@
 			
 			//Camera 회전 속성
 			const controls = new OrbitControls(camera, canvas);
+			controls.enablePan = false;
+			controls.enableRotate = false;
+			controls.maxDistance = 25;
+			controls.minDistance = 8;
 			controls.target.set(0, 0, 0); //시점 이동
 			controls.update(); //이동한 시점 바라보도록 
 						
 			//Scene 생성
 			const scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xa4a2a3 );
-			
-			//xyz helper
-			//scene.add( new THREE.AxesHelper( 20 ) );
-			
-			//광원 색상 GUI
-			class ColorGUIHelper {
-				constructor(object, prop) {
-				  this.object = object;
-				  this.prop = prop;
-				}
-				get value() {
-				  return `#${this.object[this.prop].getHexString()}`;
-				}
-				set value(hexString) {
-				  this.object[this.prop].set(hexString);
-				}
-			}
-			
+						
 			//광원
 			{	
-				const ambColor = 0x204126;
-				const ambIntensity = 0.44;
-				const ambLight = new THREE.AmbientLight(ambColor, ambIntensity);
+				const ambLight = new THREE.AmbientLight(0x314d36, 0.49);
 				scene.add(ambLight);
 				
-				const skyColor = 0x9ba9c3;  // light blue
-				const groundColor = 0x1b1a25;  // brownish orange
-				const intensity = 1.33;
-				const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+				const light = new THREE.HemisphereLight(0x0059ff, 0x7f2307, 1.21);
 				scene.add(light);
 				
-				const dirColor = 0xaa2a5f;
-				const dirIntensity = 1;
-				const dirLight = new THREE.DirectionalLight(dirColor, dirIntensity);
-				dirLight.position.set(0, 10, 0);
-				dirLight.target.position.set(-5, 0, 0);
+				const dirLight = new THREE.DirectionalLight(0xffe6f0, 0.7);
+				dirLight.position.set(-10, 6.2, 3.5);
+				dirLight.target.position.set(-10, 3, -0.2);
 				scene.add(dirLight);
-				scene.add(dirLight.target);
-				
-				function makeXYZGUI(gui, vector3, name, onChangeFn) {
-					const folder = gui.addFolder(name);
-					folder.add(vector3, 'x', -10, 10).onChange(onChangeFn);
-					folder.add(vector3, 'y', 0, 10).onChange(onChangeFn);
-					folder.add(vector3, 'z', -10, 10).onChange(onChangeFn);
-					folder.open();
-				}
-				
-				function updateLight() {
-					dirLight.target.updateMatrixWorld();
-				}
-				updateLight();
-				
-				//GUI
-				const gui = new GUI();				
-				const lightFolder = gui.addFolder("light")
-				lightFolder.addColor(new ColorGUIHelper(ambLight, 'color'), 'value') .name('ambColor');
-				lightFolder.add(ambLight, 'intensity', 0, 2, 0.01);
-				lightFolder.addColor(new ColorGUIHelper(light, 'color'), 'value').name('skyColor');
-				lightFolder.addColor(new ColorGUIHelper(light, 'groundColor'), 'value').name('groundColor');
-				lightFolder.add(light, 'intensity', 0, 2, 0.01);
-				lightFolder.addColor(new ColorGUIHelper(dirLight, 'color'), 'value').name('dirColor');
-				lightFolder.add(dirLight, 'intensity', 0, 2, 0.01);
-				makeXYZGUI(lightFolder, dirLight.position, 'position', updateLight);
-				makeXYZGUI(lightFolder, dirLight.target.position, 'target', updateLight);
-				
-				const interactionFolder = gui.addFolder("interaction");
-				interactionFolder.add(param, 'mouseOver');
-				interactionFolder.add(param, 'orbitControls');
+					scene.add(dirLight.target);
 			}
 						
-			//모델 크기에 맞춰 절두체 크기 재조정
-			function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
-				const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
-				const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
-				const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
-				// compute a unit vector that points in the direction the camera is now
-				// in the xz plane from the center of the box
-				const direction = (new THREE.Vector3())
-					.subVectors(camera.position, boxCenter)
-					.multiply(new THREE.Vector3(1, 0, 1))
-					.normalize();
-
-				// move the camera to a position distance units way from the center
-				// in whatever direction the camera was from the center already
-				camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-
-				// pick some near and far values for the frustum that
-				// will contain the box.
-				camera.near = boxSize / 100;
-				camera.far = boxSize * 100;
-
-				camera.updateProjectionMatrix();
-
-				// point the camera to look at the center of the box
-				camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
-			}
-
 			{
 			const gltfLoader = new GLTFLoader();
 			gltfLoader.load('https://syee19.github.io/Buddas_b/buddas.glb', (gltf) => {
 				const root = gltf.scene;
 				root.position.set(-0.8, 3, -4.4);
 				scene.add(root);
-				
-				/*
-				// compute the box that contains all the stuff
-				// from root and below
-				const box = new THREE.Box3().setFromObject(root);
-	
-				const boxSize = box.getSize(new THREE.Vector3()).length();
-				const boxCenter = box.getCenter(new THREE.Vector3());
-
-				// set the camera to frame the box
-				frameArea(boxSize * 0.5, boxSize, boxCenter, camera);
-	
-				// update the Trackball controls to handle the new size
-				//controls.maxDistance = boxSize * 10;
-				//controls.target.copy(boxCenter);
-				controls.update();
-				//document.write(camera.position.z);
-				//-0.365274516084083, 1.189648554562553, 11.884946799256626
-				*/
-				});
-				
+				});				
 			}
 				
-			
+			//* mesh 생성 함수
 			function addShape( x, y, z) {
-					//star shape
+					//star shape (*)
 					const shape = new THREE.Shape()
 							.moveTo( 3, 5 )
 							.lineTo( 3, 21 )
@@ -340,41 +241,35 @@
 							.lineTo( 17, 13 )
 							.lineTo( 3, 5 ); // close path
 					
-					// flat shape with texture
-					// note: default UVs generated by THREE.ShapeGeometry are simply the x- and y-coordinates of the vertices
-					
-					//scale 너무 커서 조정
+					//scale 조정
 					var s = 0.03;
 					let geometry = new THREE.ShapeGeometry( shape );
 
 					let mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x5b8d80, side: THREE.DoubleSide } ) );
 					mesh.position.set( x, y, z );
 					mesh.scale.set( s, s, s );
-					mesh.lookAt(camera.position);
 					scene.add( mesh );
 					return mesh;
 				}
-				
-				var arr = [];
-				var len = 10;
-				const n = 30
-				const seta = Math.PI*2/n;
-				var shx, shy, shz;
-				for(var i=0; i<n; i++){
-					len = Math.floor(Math.random()*10)+10;
-					shx = len*Math.sin(i*seta);
-					shy = Math.floor(Math.random()*40)-20;
-					shz = len*Math.cos(i*seta);
-					arr.push(addShape( shx, shy, shz));
-				}
-				
-				
+			
+			//원점 주변에 일정 간격으로 랜덤하게 * mesh 생성
+			var arr = [];
+			var len = 10;
+			const n = 30
+			const seta = Math.PI*2/n;
+			var shx, shy, shz;
+			for(var i=0; i<n; i++){
+				len = Math.floor(Math.random()*10)+10;
+				shx = len*Math.sin(i*seta);
+				shy = Math.floor(Math.random()*40)-20;
+				shz = len*Math.cos(i*seta);
+				arr.push(addShape( shx, shy, shz));
+			}
+								
 			//마우스 위치에 따라 카메라 회전
 			function onDocumentMouseMove( event ) {
-
-				mouseX = ( event.clientX - windowHalfX ) / 100;
-				mouseY = ( event.clientY - windowHalfY ) / 100;
-
+				mouseX = ( event.clientX - windowHalfX ) / 80;
+				mouseY = ( event.clientY - windowHalfY ) / 50;
 			}
 			
 			//canvas를 리사이징 해야하는지 검사 -> 리사이징 했으면 true 반환
@@ -391,25 +286,13 @@
 			
 			function render() {
 				//onDocumentMouseMove
-				if(param.mouseOver){
+				{
 					const timer = 0.0001 * Date.now();
 
 					camera.position.x += ( mouseX - camera.position.x ) * .05;
 					camera.position.y += ( - mouseY - camera.position.y ) * .05;
 
 					camera.lookAt( scene.position );
-				}
-				
-				//orbitControls
-				if(!param.orbitControls){
-					controls.enablePan = false;
-					controls.enableRotate = false;
-					controls.enableZoom = false;
-				}
-				else{
-					controls.enablePan = true;
-					controls.enableRotate = true;
-					controls.enableZoom = true;			
 				}
 				
 				//카메라의 비율을 canvas 비율로 지정
@@ -419,6 +302,7 @@
 					camera.updateProjectionMatrix();
 				}
 				
+				//* 애니메이션
 				for(var i=0; i<arr.length; i++){
 					arr[i].position.y -= 0.03;
 					if(arr[i].position.y <= -20)
@@ -427,8 +311,7 @@
 				}
 				
 				//인자로 받은 씬을 렌더링
-				renderer.render(scene, camera);
-				
+				renderer.render(scene, camera);				
 				requestAnimationFrame(render);
 			}
 			requestAnimationFrame(render);
